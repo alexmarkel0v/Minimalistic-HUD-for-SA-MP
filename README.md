@@ -3,4 +3,5 @@
 - #Northn (за то, что взял его файл и переименовал).
 - developez (в его платном скрипте худ почти такой же как и у этого)
 - crybaby (вроде помогал developez'у)
-Credits: #Northn, developez, crybaby, alexmarkel0v.
+
+- Credits: #Northn, developez, crybaby, alexmarkel0v.
