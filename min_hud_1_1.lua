@@ -61,7 +61,7 @@ function main()
 		renderDrawBox(x, y, 265, 30, 0xff111111)
 		renderDrawBox(x, y + 30, (265/100) * HP, 4, 0xEEDC5A63)
 		renderDrawBox(x, y + 35, (265/100) * ARMOR, 4, 0xEE818381)
-		if isCharInWater(PLAYER_PED) then 
+		if isCharInWater(PLAYER_PED) and not isCharInAnyCar(PLAYER_PED) then 
 			renderDrawBox(x, y + 40, (265/100) * OXYGEN, 4, 0xAA4682B4)
 		end
 		if not isCharInWater(PLAYER_PED) and not isCharInAnyCar(PLAYER_PED) then
@@ -77,7 +77,6 @@ function main()
 				renderDrawBox(x,  y + 40, (265/100) * carhp/10, 4, 0xEED2B48C)
 			end
 		end
-		
 		if weapon == 0 then
 			renderFontDrawText(font, money..'$', x + 265 / 2 - renderGetFontDrawTextLength(font, money..'$') / 2, y + 5.5, 0xEEC7C7C7, true)
 		else
