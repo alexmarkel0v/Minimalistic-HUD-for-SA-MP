@@ -1,6 +1,6 @@
 script_name('Minimalistic HUD')
 script_version("1.1")
-script_author("#Northn | Katsuro | developez | alexmarkel0v")
+script_author("#Northn | developez | crybaby | alexmarkel0v")
 
 local memory = require 'memory'
 local game_weapons = require 'game.weapons'
