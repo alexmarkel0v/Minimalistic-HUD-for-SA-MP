@@ -18,9 +18,10 @@ local settings = "moonloader/config/min_hud.ini"
 local settingsIni = inicfg.load(mainIni, settings)
 if not doesFileExist('moonloader/config/min_hud.ini') then inicfg.save(mainIni, 'min_hud.ini') end
 
-local font = renderCreateFont("Bebas Neue Bold", 14, 1)
 local x = mainIni.coordsmainhud.xcoord
 local y = mainIni.coordsmainhud.ycoord
+
+local font = renderCreateFont("Bebas Neue Bold", 14, 1)
 
 weapons_list[1] = 'Кастет'
 weapons_list[2] = 'Клюшка для гольфа'
@@ -50,38 +51,46 @@ function main()
 	sampRegisterChatCommand('chpos', cmd_changepos)
 	
 	while true do wait(0)
+		--sx,sy = getCursorPos()
+        --gx,gy = convertWindowScreenCoordsToGameScreenCoords(sx,sy)
+        --renderFontDrawText(font, gx..':'..gy, sx,sy,0xFFFFAE86)
 		local HP = getCharHealth(PLAYER_PED) < 100 and getCharHealth(PLAYER_PED) > -1 and getCharHealth(PLAYER_PED) or 100
-		local ARMOR = getCharArmour(PLAYER_PED)
+		local ARMOR = getCharArmour(PLAYER_PED) < 100 and getCharArmour(PLAYER_PED) or 100
 		local OXYGEN = getWaterLocalPlayer() < 100 and getWaterLocalPlayer() or 100
 		local SPRINT = getSprintLocalPlayer() < 100 and getSprintLocalPlayer() or 100
 		local weapon = getCurrentCharWeapon(PLAYER_PED)
 		local money = getPlayerMoney(PLAYER_HANDLE)
+		ScreenX, ScreenY = getScreenResolution()
 		local righttext = string.upper(game_weapons.get_name(weapon))..(weapon > 15 and weapon ~= 46 and ' ('..getAmmoInClip() ..'/'.. getAmmoInCharWeapon(PLAYER_PED, weapon) - getAmmoInClip()..')' or '')
-		renderDrawBox(x, y - 1, 265, 2, 0xff818381)
-		renderDrawBox(x, y, 265, 30, 0xff111111)
-		renderDrawBox(x, y + 30, (265/100) * HP, 4, 0xEEDC5A63)
-		renderDrawBox(x, y + 35, (265/100) * ARMOR, 4, 0xEE818381)
+		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 1, ScreenX / 4.5, ScreenY / 250, 0xff818381)
+		if ScreenY < 1080 then
+			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 26.1, 0xff111111)
+		else
+			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xff111111)
+		end
+		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * HP, ScreenY / 230, 0xEEDC5A63) --(265/100) * HP, 4, 0xEEDC5A63)
+		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 37, (ScreenX / 450) * ARMOR, ScreenY / 230, 0xEE818381)
 		if isCharInWater(PLAYER_PED) and not isCharInAnyCar(PLAYER_PED) then 
-			renderDrawBox(x, y + 40, (265/100) * OXYGEN, 4, 0xAA4682B4)
+			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) + 44, (ScreenX / 450) * OXYGEN , ScreenY / 230, 0xAA4682B4)
 		end
 		if not isCharInWater(PLAYER_PED) and not isCharInAnyCar(PLAYER_PED) then
-			renderDrawBox(x, y + 40, (265/100) * SPRINT, 4, 0xAA90EE90)
+			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) + 44, (ScreenX / 450) * SPRINT, ScreenY / 230, 0xAA90EE90)
 		end
 		if not isCharInAnyCar(PLAYER_PED) then
-			renderFontDrawText(font, 'Вне т/с', x, y - 22.5, 0xEEC7C7C7, true)
+			renderFontDrawText(font, 'Вне т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 22.5, 0xEEC7C7C7, true)
 		end
 		if isCharInAnyCar(PLAYER_PED) then
-			renderFontDrawText(font, getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED))), x, y - 22.5, 0xEEC7C7C7, true)
+			renderFontDrawText(font, getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED))), ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 22.5, 0xEEC7C7C7, true)
 			if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
 				local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
-				renderDrawBox(x,  y + 40, (265/100) * carhp/10, 4, 0xEED2B48C)
+				renderDrawBox(ScreenX * (x / ScreenX),  ScreenY * (y / ScreenY) + 44, (ScreenX / 450) * carhp/10, ScreenY / 230, 0xEED2B48C)
 			end
 		end
 		if weapon == 0 then
-			renderFontDrawText(font, money..'$', x + 265 / 2 - renderGetFontDrawTextLength(font, money..'$') / 2, y + 5.5, 0xEEC7C7C7, true)
+			renderFontDrawText(font, money..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 5.5, 0xEEC7C7C7, true)
 		else
-			renderFontDrawText(font, righttext, x + 262 - renderGetFontDrawTextLength(font, righttext), y + 5.5, 0xEEC7C7C7, true)
-			renderFontDrawText(font, money..'$', x + 3, y + 5.5, 0xEEC7C7C7, true)
+			renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext)-3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 5.5, 0xEEC7C7C7, true)
+			renderFontDrawText(font, money..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 5.5, 0xEEC7C7C7, true)
 		end
 	end
 end
