@@ -12,4 +12,4 @@
 
 - Скриншоты: https://imgur.com/a/3WCVS0M
 
-- Credits: #Northn, developez, crybaby, alexmarkel0v.
+- Credits: alexmarkel0v (я), #Northn (developezHUD), developez (автор идеи внешнего вида developezHUD), crybaby (помогал developez'у).
