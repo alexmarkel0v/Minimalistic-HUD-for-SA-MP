@@ -14,4 +14,4 @@
 
 - Скриншоты: https://imgur.com/a/3WCVS0M
 
-- Credits: alexmarkel0v (я), #Northn (developezHUD), developez (автор идеи внешнего вида developezHUD), crybaby (помогал developez'у).
+- Credits: alexmarkel0v (я), #Northn (developezHUD), developez (автор идеи внешнего вида и вообще в целом developezHUD), crybaby (помогал developez'у).
