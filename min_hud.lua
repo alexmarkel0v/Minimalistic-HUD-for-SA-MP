@@ -149,7 +149,10 @@ function main()
 	end
 
 	print("Authors: "..unpack(thisScript().authors))
+	
 	while not isSampAvailable() do wait(50) end
+	while not sampIsLocalPlayerSpawned() do wait(50) end
+	
 	displayHud(false)	
 	
 	sampRegisterChatCommand('chpos', cmd_changepos)
@@ -164,9 +167,10 @@ function main()
 		local ScreenX, ScreenY = getScreenResolution()
 		local righttext = string.upper(game_weapons.get_name(weapon))..(weapon > 15 and weapon ~= 46 and ' ('..getAmmoInClip() ..'/'.. getAmmoInCharWeapon(PLAYER_PED, weapon) - getAmmoInClip()..')' or '')
 		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 2, ScreenX / 4.5, ScreenY / 250, 0xFF818381)
-		if ScreenY < 1080 then
+		if ScreenX < 1920 then
 			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 26.1, 0xEE111111)
-		else
+		end
+		if ScreenX == 1920 then
 			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xEE111111)
 		end
 		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
