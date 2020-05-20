@@ -1,8 +1,8 @@
 script_name('Minimalistic HUD')
-script_version("1.2")
+script_version("1.3")
 script_author("alexmarkel0v | #Northn | developez | crybaby")
 
-local memory = require 'memory'
+local memorycheck, memory = pcall(require, "memory")
 local game_weapons = require 'game.weapons'
 local weapons_list = game_weapons.names
 local inicfg = require 'inicfg'
@@ -142,9 +142,14 @@ setGxtEntry("FARMTR1","FARMTRAILER")
 setGxtEntry("UTILTR1","UTILLTYTRAILER")
 
 function main()
+	if memorycheck == false then
+		print("Одна из важных библиотек (memory) отсутствует.")
+		print("Проверьте их наличие у себя в папке с игрой и перезайдите.")
+		thisScript():unload()
+	end
+
 	print("Authors: "..unpack(thisScript().authors))
 	while not isSampAvailable() do wait(50) end
-	while not sampIsLocalPlayerSpawned() do wait(50) end
 	displayHud(false)	
 	
 	sampRegisterChatCommand('chpos', cmd_changepos)
@@ -156,53 +161,113 @@ function main()
 		local SPRINT = getSprintLocalPlayer() < 100 and getSprintLocalPlayer() or 100
 		local weapon = getCurrentCharWeapon(PLAYER_PED)
 		local money = getPlayerMoney(PLAYER_HANDLE)
-		ScreenX, ScreenY = getScreenResolution()
+		local ScreenX, ScreenY = getScreenResolution()
 		local righttext = string.upper(game_weapons.get_name(weapon))..(weapon > 15 and weapon ~= 46 and ' ('..getAmmoInClip() ..'/'.. getAmmoInCharWeapon(PLAYER_PED, weapon) - getAmmoInClip()..')' or '')
-		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 2, ScreenX / 4.5, ScreenY / 250, 0xff818381)
+		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 2, ScreenX / 4.5, ScreenY / 250, 0xFF818381)
 		if ScreenY < 1080 then
-			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 26.1, 0xff111111)
+			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 26.1, 0xEE111111)
 		else
-			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xff111111)
+			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xEE111111)
 		end
+		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
 		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * HP, ScreenY / 230, 0xEEDC5A63)
+		if ARMOR > 0 then
+			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 37, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+		end
 		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 37, (ScreenX / 450) * ARMOR, ScreenY / 230, 0xEE818381)
-		if isCharInWater(PLAYER_PED) and not isCharInAnyCar(PLAYER_PED) then 
-			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) + 44, (ScreenX / 450) * OXYGEN , ScreenY / 230, 0xAA4682B4)
-		end
-		if not isCharInWater(PLAYER_PED) and not isCharInAnyCar(PLAYER_PED) then
-			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) + 44, (ScreenX / 450) * SPRINT, ScreenY / 230, 0xAA90EE90)
-		end
-		if not isCharInAnyCar(PLAYER_PED) then
-			if ScreenY < 1080 then
-				renderFontDrawText(font, 'Вне т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
-			else
-				renderFontDrawText(font, 'Вне т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
-			end
+		if isCharInWater(PLAYER_PED) then 
+			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 44, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 44, (ScreenX / 450) * OXYGEN , ScreenY / 230, 0xEE4682B4)
 		end
 		if isCharInAnyCar(PLAYER_PED) then
-			if ScreenY < 1080 then
+			if isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) then
+				if ScreenX < 1920 then
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 23.5, 0xEEDC5A63)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 26.5, 0xEEDC5A63)
+				end
+			else
+				if ScreenX < 1920 then
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+				end
+			end
+			if isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) then
+				if ScreenX < 1920 then
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 23.5, 0xEEDC5A63)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 26.5, 0xEEDC5A63)
+				end
+			else
+				if ScreenX < 1920 then
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+				end
+			end
+			if not getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) then
+				if ScreenX < 1920 then
+					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 23.5, 0xEEDC5A63, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 26.5, 0xEEDC5A63, true)
+				end
+			else
+				if ScreenX < 1920 then
+					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7)
+				end
+			end
+			local speed = getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED))
+			if ScreenX < 1920 then
 				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
-			else 
+				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
+				renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
+			end
+			if ScreenX == 1920 then
 				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
+				renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
 			end
 			if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
 				local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
-				renderDrawBox(ScreenX * (x / ScreenX),  ScreenY * (y / ScreenY) + 44, (ScreenX / 450) * carhp/10, ScreenY / 230, 0xEED2B48C)
-			end
-		end
-		if weapon == 0 then
-			if ScreenY < 1080 then
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 5.5, 0xEEC7C7C7, true)
-			else
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 4.4, 0xEEC7C7C7, true)
+				if ScreenX < 1920 then
+					renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
+				end
 			end
 		else
-			if ScreenY < 1080 then
-				renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext)-3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 5.5, 0xEEC7C7C7, true)
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 5.5, 0xEEC7C7C7, true)
+			if ScreenX < 1920 then
+				renderFontDrawText(font, 'Вне т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
+			end
+			if ScreenX == 1920 then
+				renderFontDrawText(font, 'Вне т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+			end
+			if weapon == 0 then
+				if ScreenX < 1920 then
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 4.4, 0xEEC7C7C7, true)
+				end
 			else
-				renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext)-3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
+				if ScreenX < 1920 then
+					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
+				end
 			end
 		end
 	end
@@ -243,6 +308,10 @@ end
 function getSprintLocalPlayer()
     local float = memory.getfloat(0xB7CDB4)
     return float/31.47000244
+end
+
+function isCarLightsOn(car)
+	return readMemory(getCarPointer(car) + 0x428, 1) > 62
 end
 
 function comma_value(n)
