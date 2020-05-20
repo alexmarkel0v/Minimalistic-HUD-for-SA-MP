@@ -1,5 +1,5 @@
 script_name('Minimalistic HUD')
-script_version("1.3")
+script_version("1.3.2")
 script_author("alexmarkel0v | #Northn | developez | crybaby")
 
 local memorycheck, memory = pcall(require, "memory")
@@ -237,8 +237,8 @@ function main()
 			end
 			if ScreenX == 1920 then
 				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
-				renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
+				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
+				renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
 			end
 			if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
 				local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
@@ -255,7 +255,7 @@ function main()
 					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 4.4, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
 				end
 			else
 				if ScreenX < 1920 then
@@ -263,8 +263,8 @@ function main()
 					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 4.4, 0xEEC7C7C7, true)
+					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
 				end
 			end
 		end
