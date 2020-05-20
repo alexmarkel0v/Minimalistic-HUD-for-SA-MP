@@ -250,12 +250,6 @@ function main()
 				end
 			end
 		else
-			if ScreenX < 1920 then
-				renderFontDrawText(font, '¬не т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
-			end
-			if ScreenX == 1920 then
-				renderFontDrawText(font, '¬не т/с', ScreenX * (x / ScreenX),  (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
-			end
 			if weapon == 0 then
 				if ScreenX < 1920 then
 					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
