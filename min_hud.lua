@@ -1,8 +1,9 @@
 script_name('Minimalistic HUD')
-script_version("1.3.2")
+script_version("1.3.3")
 script_author("alexmarkel0v | #Northn | developez | crybaby")
 
 local memorycheck, memory = pcall(require, "memory")
+local sampevcheck, sampev = pcall(require, "lib.samp.events")
 local game_weapons = require 'game.weapons'
 local weapons_list = game_weapons.names
 local inicfg = require 'inicfg'
@@ -23,6 +24,8 @@ if not doesFileExist('moonloader/config/min_hud.ini') then inicfg.save(mainIni, 
 
 local x = mainIni.coordsmainhud.xcoord
 local y = mainIni.coordsmainhud.ycoord
+
+local project
 
 local font = renderCreateFont("Bebas Neue Bold", 14, 1)
 
@@ -142,8 +145,8 @@ setGxtEntry("FARMTR1","FARMTRAILER")
 setGxtEntry("UTILTR1","UTILLTYTRAILER")
 
 function main()
-	if memorycheck == false then
-		print("ќдна из важных библиотек (memory) отсутствует.")
+	if memorycheck == false or sampevcheck == false then
+		print("ќдна из важных библиотек (memory, SAMP.Lua) отсутствует.")
 		print("ѕроверьте их наличие у себ€ в папке с игрой и перезайдите.")
 		thisScript():unload()
 	end
@@ -158,6 +161,7 @@ function main()
 	sampRegisterChatCommand('chpos', cmd_changepos)
 	
 	while true do wait(0)
+		check_project()
 		local HP = getCharHealth(PLAYER_PED) < 100 and getCharHealth(PLAYER_PED) > -1 and getCharHealth(PLAYER_PED) or 100
 		local ARMOR = getCharArmour(PLAYER_PED) < 100 and getCharArmour(PLAYER_PED) or 100
 		local OXYGEN = getWaterLocalPlayer() < 100 and getWaterLocalPlayer() or 100
@@ -173,7 +177,9 @@ function main()
 		if ScreenX == 1920 then
 			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xEE111111)
 		end
-		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+		if HP > 0 then
+			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+		end
 		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * HP, ScreenY / 230, 0xEEDC5A63)
 		if ARMOR > 0 then
 			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 37, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
@@ -186,59 +192,125 @@ function main()
 		if isCharInAnyCar(PLAYER_PED) then
 			if isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) then
 				if ScreenX < 1920 then
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 23.5, 0xEEDC5A63)
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 26.5, 0xEEDC5A63)
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63)
 				end
 			else
 				if ScreenX < 1920 then
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
 				end
 			end
 			if isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) then
 				if ScreenX < 1920 then
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 23.5, 0xEEDC5A63)
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 26.5, 0xEEDC5A63)
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63)
 				end
 			else
 				if ScreenX < 1920 then
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
 				end
 			end
-			if not getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) then
-				if ScreenX < 1920 then
-					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 23.5, 0xEEDC5A63, true)
-				end
-				if ScreenX == 1920 then
-					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 26.5, 0xEEDC5A63, true)
+			if project == 0 then
+				if getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) then
+					if ScreenX < 1920 then
+						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7)
+					end
+					if ScreenX == 1920 then
+						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7)
+					end
+				else
+					if ScreenX < 1920 then
+						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63, true)
+					end
+					if ScreenX == 1920 then
+						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63, true)
+					end
 				end
 			else
-				if ScreenX < 1920 then
-					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7)
-				end
-				if ScreenX == 1920 then
-					renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7)
+				if project == 1 then
+					if sampTextdrawIsExists(2264) then
+						_, colordoors, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2264)
+						if colordoors ~= 671088640 then
+							if ScreenX < 1920 then
+								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63, true)
+							end
+							if ScreenX == 1920 then
+								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63, true)
+							end
+						else
+							if ScreenX < 1920 then
+								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7)
+							end
+							if ScreenX == 1920 then
+								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7)
+							end
+						end
+					end
+					if sampTextdrawIsExists(2265) then
+						_, colorsport, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2265)
+						if colorsport ~= 671088640 then
+							if ScreenX < 1920 then
+								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63, true)
+							end
+							if ScreenX == 1920 then
+								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63, true)
+							end
+						else
+							if ScreenX < 1920 then
+								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7)
+							end
+							if ScreenX == 1920 then
+								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7)
+							end
+						end
+					end
 				end
 			end
 			local speed = getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED))
 			if ScreenX < 1920 then
-				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 23.5, 0xEEC7C7C7, true)
+				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
 				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
-				renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
 			end
 			if ScreenX == 1920 then
-				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 26.5, 0xEEC7C7C7, true)
+				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
 				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
-				renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
+			end
+			if project == 0 then
+				if ScreenX < 1920 then
+					renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+				end
+				if ScreenX == 1920 then
+					renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+				end
+			else
+				if project == 1 then
+					if sampTextdrawIsExists(2256) then
+						speed1 = sampTextdrawGetString(2256)
+						if ScreenX < 1920 then
+							renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+						end
+						if ScreenX == 1920 then
+							renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+						end
+					else
+						if ScreenX < 1920 then
+							renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+						end
+						if ScreenX == 1920 then
+							renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+						end
+					end
+				end
 			end
 			if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
 				local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
@@ -247,6 +319,17 @@ function main()
 				end
 				if ScreenX == 1920 then
 					renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
+				end
+				if project == 1 then
+					if sampTextdrawIsExists(2261) then
+						liters = sampTextdrawGetString(2261)
+						if ScreenX < 1920 then
+							renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+						end
+						if ScreenX == 1920 then
+							renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+						end
+					end
 				end
 			end
 		else
@@ -259,12 +342,12 @@ function main()
 				end
 			else
 				if ScreenX < 1920 then
-					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
+					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
 				end
 				if ScreenX == 1920 then
-					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
+					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
 				end
 			end
 		end
@@ -323,4 +406,22 @@ function separator(text)
 	    text = string.gsub(text, S, replace)
 	end
 	return text
+end
+
+function check_project()
+	if sampGetCurrentServerName():lower():match("pears project") or sampGetCurrentServerName():lower():match("Х test project Х") then project = 1
+	else project = 0
+	end
+end
+
+function sampev.onShowTextDraw(id, data)
+    if project == 1 then
+		for i = 2255, 2269 do
+			if i == id then
+				data.position.x = 2000
+				data.position.y = 2000
+			end
+		end
+	end
+    return {id, data}
 end
