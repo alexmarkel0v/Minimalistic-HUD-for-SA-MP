@@ -1,5 +1,5 @@
 Минималистичный HUD для GTA SA. За основу взят developezHUD, который был доработан мной. 
-Последняя версия: 1.3.3 (https://github.com/Alexander-Markelov/Minimalistic-HUD-for-GTA-SA/releases/latest)
+Последняя версия: 1.3.4 (https://github.com/Alexander-Markelov/Minimalistic-HUD-for-GTA-SA/releases/latest)
 . Чтобы скачать, перейдите по ссылке выше, после чего кликните по архиву, который будет ниже надписи Assets.
 - Приношу свои извинения следующим людям: 
 - #Northn (за то, что взял его файл и переименовал).
