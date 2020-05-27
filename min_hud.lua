@@ -1,6 +1,6 @@
 script_name('Minimalistic HUD')
-script_version("1.3.4")
-script_author("alexmarkel0v | #Northn | developez | crybaby")
+script_version("1.3.4.1")
+script_author("alexmarkel0v")
 
 local memorycheck, memory = pcall(require, "memory")
 local sampevcheck, sampev = pcall(require, "lib.samp.events")
