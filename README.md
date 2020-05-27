@@ -14,6 +14,8 @@
 
 - Перед установкой прочтите readme.txt, который внутри архива.
 
+- HUD адаптирован под следующие проекты: Fruit Project.
+
 - Скриншоты: https://imgur.com/a/MQoOESD
 
 - Credits: alexmarkel0v (я), #Northn (developezHUD), developez (автор идеи внешнего вида и вообще в целом developezHUD), crybaby (помогал developez'у).
