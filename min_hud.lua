@@ -7,7 +7,7 @@ function _()
 end
 
 script_name('Minimalistic HUD')
-script_version("1.4.2")
+script_version("1.4.2.1")
 script_author("alexmarkel0v (Александр Маркелов), Rich.W, Илья Рубинковский")
 
 require 'libstd.deps' {
@@ -243,7 +243,7 @@ function main()
 				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 35 - progressbarpos, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
 				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 35 - progressbarpos, (ScreenX / 450) * ARMOR, ScreenY / 230, 0xEE818381)
 			end
-			if isCharInWater(PLAYER_PED) and HP > 0 then 
+			if isCharInWater(PLAYER_PED) or isCharInAnyCar(PLAYER_PED) and isCarInWater(storeCarCharIsInNoSave(PLAYER_PED)) and HP > 0 then 
 				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + (ARMOR > 0 and 40 or 35) - (ARMOR > 0 and progressbarpos*2 or progressbarpos), (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
 				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + (ARMOR > 0 and 40 or 35) - (ARMOR > 0 and progressbarpos*2 or progressbarpos), (ScreenX / 450) * OXYGEN , ScreenY / 230, 0xEE4682B4)
 			end
