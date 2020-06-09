@@ -1,19 +1,60 @@
+function _()
+    (""):Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()
+    (""):Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()
+    (""):Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()
+    (""):Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()
+    (""):Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()():Ж()
+end
+
 script_name('Minimalistic HUD')
-script_version("1.3.4.1")
-script_author("alexmarkel0v")
+script_version("1.4.2")
+script_author("alexmarkel0v (јлександр ћаркелов), Rich.W, »ль€ –убинковский")
+
+require 'libstd.deps' {
+   'fyp:mimgui',
+   'fyp:samp-lua'
+}
 
 local memorycheck, memory = pcall(require, "memory")
 local sampevcheck, sampev = pcall(require, "lib.samp.events")
+local vkeyscheck, vkeys = pcall(require, "vkeys")
 local game_weapons = require 'game.weapons'
 local weapons_list = game_weapons.names
 local inicfg = require 'inicfg'
+local mimgui, ffi = require 'mimgui', require 'ffi'
+local new, str = mimgui.new, ffi.string
+local encoding = require 'encoding'
+encoding.default = 'CP1251'
+local u8 = encoding.UTF8
+
+ffi.cdef[[
+bool SetCursorPos(int X, int Y);
+]]
+
+local mainc = mimgui.ImVec4(0.0, 0.52, 0.74, 1.0) -- —иний
+
+local mimShow = new.bool()
+local mimChangeProgressBar = new.bool()
+local mimChangeHudPos = new.bool()
+local mimWanted = new.bool()
+local mimHud = new.bool(true)
+local mimSizeFont = new.int(14)
+local mimMainTextPos = new.int(0)
+local mimOtherTextPos = new.int(0)
+local mimProgressPos = new.int(0)
 
 mainIni = inicfg.load(
 {
-	coordsmainhud =
+	main =
 	{
-		ycoord = 719,
-		xcoord = 1095,
+		ycoord = 706,
+		xcoord = 957,
+		sizefont = mimSizeFont[0],
+		posmaintext = mimMainTextPos[0],
+		posothertext = mimOtherTextPos[0],
+		posprogressbar = mimProgressPos[0],
+		wanted = mimWanted[0],
+		hud = mimHud[0],
 	}
 }, "min_hud.ini")
 
@@ -22,12 +63,17 @@ local settingsIni = inicfg.load(mainIni, settings)
 
 if not doesFileExist('moonloader/config/min_hud.ini') then inicfg.save(mainIni, 'min_hud.ini') end
 
-local x = mainIni.coordsmainhud.xcoord
-local y = mainIni.coordsmainhud.ycoord
+local x = mainIni.main.xcoord
+local y = mainIni.main.ycoord
+local fontsize = mainIni.main.sizefont
+local textposmain = mainIni.main.posmaintext
+local textposother = mainIni.main.posothertext
+local progressbarpos = mainIni.main.posprogressbar
+local showhud = mainIni.main.hud
+local wanted = mainIni.main.wanted
+local font = renderCreateFont("Bebas Neue Bold", fontsize, 1)
 
 local project
-
-local font = renderCreateFont("Bebas Neue Bold", 14, 1)
 
 weapons_list[1] = ' астет'
 weapons_list[2] = ' люшка дл€ гольфа'
@@ -145,173 +191,173 @@ setGxtEntry("FARMTR1","FARMTRAILER")
 setGxtEntry("UTILTR1","UTILLTYTRAILER")
 
 function main()
-	if memorycheck == false or sampevcheck == false then
-		print("ќдна из важных библиотек (memory, SAMP.Lua) отсутствует.")
+	if getMoonloaderVersion() <= 26 then 
+		print("¬ерси€ moonloader'а ниже 0.27. —качивание библиотек невозможно.")
+		thisScript():unload()
+	end
+	
+	if memorycheck == false or sampevcheck == false or vkeyscheck == false then
+		print("ќдна из важных библиотек (memory, SAMP.Lua, vkeys) отсутствует.")
 		print("ѕроверьте их наличие у себ€ в папке с игрой и перезайдите.")
 		thisScript():unload()
 	end
-
-	print("Authors: "..unpack(thisScript().authors))
+	
+	mimHud[0] = showhud
+	mimSizeFont[0] = fontsize
+	mimMainTextPos[0] = textposmain
+	mimOtherTextPos[0] = textposother
+	mimProgressPos[0] = progressbarpos
+	mimWanted[0] = wanted
 	
 	while not isSampAvailable() do wait(50) end
 	while not sampIsLocalPlayerSpawned() do wait(50) end
 	
-	displayHud(false)	
+	if showhud then displayHud(false) end
 	
-	sampRegisterChatCommand('chpos', cmd_changepos)
+	print('«агрузка завершена. Ќастройки: /hud_settings. ѕользуйтесь :)')
+	print('јвтор: alexmarkel0v (vk.com/alexmarkel0v).')
+	print('ќсоба€ благодарность: Rich.W (vk.com/id233900209)')
+	print('» также спасибо за помощь в тесте »лье –убинковскому (vk.com/id334546143)')
+	
+	sampRegisterChatCommand('hud_pos', cmd_changepos)
+	sampRegisterChatCommand('hud_settings', cmd_settings)
 	
 	while true do wait(0)
-		check_project()
-		local HP = getCharHealth(PLAYER_PED) < 100 and getCharHealth(PLAYER_PED) > -1 and getCharHealth(PLAYER_PED) or 100
-		local ARMOR = getCharArmour(PLAYER_PED) < 100 and getCharArmour(PLAYER_PED) or 100
-		local OXYGEN = getWaterLocalPlayer() < 100 and getWaterLocalPlayer() or 100
-		local SPRINT = getSprintLocalPlayer() < 100 and getSprintLocalPlayer() or 100
-		local weapon = getCurrentCharWeapon(PLAYER_PED)
-		local money = getPlayerMoney(PLAYER_HANDLE)
-		local ScreenX, ScreenY = getScreenResolution()
-		local righttext = string.upper(game_weapons.get_name(weapon))..(weapon > 15 and weapon ~= 46 and ' ('..getAmmoInClip() ..'/'.. getAmmoInCharWeapon(PLAYER_PED, weapon) - getAmmoInClip()..')' or '')
-		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 2, ScreenX / 4.5, ScreenY / 250, 0xFF818381)
-		if HP > 0 then
-			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
-		end
-		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * HP, ScreenY / 230, 0xEEDC5A63)
-		if ARMOR > 0 then
-			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 37, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
-		end
-		renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 37, (ScreenX / 450) * ARMOR, ScreenY / 230, 0xEE818381)
-		if isCharInWater(PLAYER_PED) then 
-			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 44, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
-			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 44, (ScreenX / 450) * OXYGEN , ScreenY / 230, 0xEE4682B4)
-		end
-		if ScreenX < 1920 then
-			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 26.1, 0xEE111111)
-			if isCharInAnyCar(PLAYER_PED) then
-				local speed = getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED))
-				if isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) then
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63)
-				else
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
-				end
-				if isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) then
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63)
-				else
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
-				end
-				if project == 0 then
-					if getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) then
-						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7)
+		if showhud then
+			check_project()
+			local HP = getCharHealth(PLAYER_PED) < 100 and getCharHealth(PLAYER_PED) > -1 and getCharHealth(PLAYER_PED) or 100
+			local ARMOR = getCharArmour(PLAYER_PED) < 100 and getCharArmour(PLAYER_PED) or 100
+			local OXYGEN = getWaterLocalPlayer() < 100 and getWaterLocalPlayer() or 100
+			local SPRINT = getSprintLocalPlayer() < 100 and getSprintLocalPlayer() or 100
+			local weapon = getCurrentCharWeapon(PLAYER_PED)
+			local money = getPlayerMoney(PLAYER_HANDLE)
+			local ScreenX, ScreenY = getScreenResolution()
+			local wantedlevel = memory.getuint8(0x58DB60)
+			local righttext = string.upper(game_weapons.get_name(weapon))..(weapon > 15 and weapon ~= 46 and ' ('..getAmmoInClip() ..'/'.. getAmmoInCharWeapon(PLAYER_PED, weapon) - getAmmoInClip()..')' or '')
+			renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) - 2, ScreenX / 4.5, ScreenY / 250, 0xFF818381)
+			if HP > 0 then
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * HP, ScreenY / 230, 0xEEDC5A63)
+			end
+			if ARMOR > 0 and HP > 0 then
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 35 - progressbarpos, (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 35 - progressbarpos, (ScreenX / 450) * ARMOR, ScreenY / 230, 0xEE818381)
+			end
+			if isCharInWater(PLAYER_PED) and HP > 0 then 
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + (ARMOR > 0 and 40 or 35) - (ARMOR > 0 and progressbarpos*2 or progressbarpos), (ScreenX / 450) * 100, ScreenY / 230, 0x557D7F7D)
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + (ARMOR > 0 and 40 or 35) - (ARMOR > 0 and progressbarpos*2 or progressbarpos), (ScreenX / 450) * OXYGEN , ScreenY / 230, 0xEE4682B4)
+			end
+			if mimChangeProgressBar[0] then
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 30, (ScreenX / 450) * 100, ScreenY / 230, 0xEEDC5A63)
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 35 - progressbarpos, (ScreenX / 450) * 100, ScreenY / 230, 0xEE818381)
+				renderDrawBox(ScreenX * (x / ScreenX), (ScreenY * (y / ScreenY)) + 40 - progressbarpos*2, (ScreenX / 450) * 100, ScreenY / 230, 0xEE4682B4)
+			end
+			if ScreenX < 1920 then
+				renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 26.1, 0xEE111111)
+				if isCharInAnyCar(PLAYER_PED) then
+					local speed = getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED))
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 23.5 - textposother, (isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) and 0xEEDC5A63 or 0xEEC7C7C7), (isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) and false or true))
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 23.5 - textposother, (isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) and 0xEEDC5A63 or 0xEEC7C7C7), (isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) and false or true))
+					if project == 0 then
+						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5 - textposother, (getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) == 2 and 0xEEDC5A63 or 0xEEC7C7C7), (getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) == 2 and false or true))
+						renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
 					else
-						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63, true)
-					end
-					renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
-				else
-					if project == 1 then
-						if sampTextdrawIsExists(2264) then
-							_, colordoors, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2264)
-							if colordoors ~= 671088640 then
-								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63, true)
+						if project == 1 then
+							if sampTextdrawIsExists(2264) then
+								_, colordoors, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2264)
+								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5 - textposother, (colordoors ~= 671088640 and 0xEEDC5A63 or 0xEEC7C7C7), (colordoors ~= 671088640 and false or true))
+							end
+							if sampTextdrawIsExists(2265) then
+								_, colorsport, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2265)
+								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 23.5 - textposother, (colorsport ~= 671088640 and 0xEEDC5A63 or 0xEEC7C7C7), (colorsport ~= 671088640 and false or true))
+							end
+							if sampTextdrawIsExists(2256) then
+								speed1 = sampTextdrawGetString(2256)
+								renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
 							else
-								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7)
+								renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
+							end
+							if sampTextdrawIsExists(2261) then
+								liters = sampTextdrawGetString(2261)
+								renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
 							end
 						end
-						if sampTextdrawIsExists(2265) then
-							_, colorsport, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2265)
-							if colorsport ~= 671088640 then
-								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 23.5, 0xEEDC5A63, true)
-							else
-								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7)
-							end
-						end
-						if sampTextdrawIsExists(2256) then
-							speed1 = sampTextdrawGetString(2256)
-							renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
-						else
-							renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
-						end
-						if sampTextdrawIsExists(2261) then
-							liters = sampTextdrawGetString(2261)
-							renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
-						end
 					end
-				end
-				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6, 0xEEC7C7C7, true)
-				if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
-					local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
-					renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 23.5, 0xEEC7C7C7, true)
-				end
-			else
-				if weapon == 0 then
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+					if mimWanted[0] and wantedlevel > 0 then 
+						renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 40 - textposother*2, 0xEEC7C7C7, true)
+						renderFontDrawText(font, "¬ розыске! (".. wantedlevel ..")", ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 23.5 - textposother, 0xEEC7C7C7, true)
+					else 
+						renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 23.5 - textposother, 0xEEC7C7C7, true)
+					end
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 6 - textposmain, 0xEEC7C7C7, true)
+					if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
+						local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
+						renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 23.5 - textposother, 0xEEC7C7C7, true)
+					end
 				else
-					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 6, 0xEEC7C7C7, true)
+					if weapon == 0 then
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
+					else
+						renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
+					end
+					if mimWanted[0] and wantedlevel > 0 then
+						renderFontDrawText(font, "¬ розыске! (".. wantedlevel ..")", ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 23.5 - textposother, 0xEEC7C7C7, true)
+					end
 				end
 			end
-		end
-		if ScreenX == 1920 then
-			renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xEE111111)
-			if isCharInAnyCar(PLAYER_PED) then
-				local speed = getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED))
-				if isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) then
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63)
-				else
-					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
-				end
-				if isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) then
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63)
-				else
-					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
-				end
-				if project == 0 then
-					if getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) then
-						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7)
+			if ScreenX == 1920 then
+				renderDrawBox(ScreenX * (x / ScreenX), ScreenY * (y / ScreenY), ScreenX / 4.5, ScreenY / 35, 0xEE111111)
+				if isCharInAnyCar(PLAYER_PED) then
+					local speed = getCarSpeed(storeCarCharIsInNoSave(PLAYER_PED))
+					renderFontDrawText(font, 'L', ScreenX * (x / ScreenX) + (ScreenX / 4.6), ScreenY * (y / ScreenY) - 26.5 - textposother, (isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) and 0xEEDC5A63 or 0xEEC7C7C7), (isCarLightsOn(storeCarCharIsInNoSave(PLAYER_PED)) and false or true))
+					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 26.5 - textposother, (isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) and 0xEEDC5A63 or 0xEEC7C7C7), (isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) and false or true))
+					if project == 0 then
+						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5 - textposother, (getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) == 2 and 0xEEDC5A63 or 0xEEC7C7C7), (getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) == 2 and false or true))
+						renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
 					else
-						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63, true)
-					end
-					renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
-				else
-					if project == 1 then
-						if sampTextdrawIsExists(2264) then
-							_, colordoors, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2264)
-							if colordoors ~= 671088640 then
-								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63, true)
+						if project == 1 then
+							if sampTextdrawIsExists(2264) then
+								_, colordoors, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2264)
+								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5 - textposother, (colordoors ~= 671088640 and 0xEEDC5A63 or 0xEEC7C7C7), (colordoors ~= 671088640 and false or true))
+							end
+							if sampTextdrawIsExists(2265) then
+								_, colorsport, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2265)
+								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 26.5 - textposother, (colorsport ~= 671088640 and 0xEEDC5A63 or 0xEEC7C7C7), (colorsport ~= 671088640 and false or true))
+							end
+							if sampTextdrawIsExists(2256) then
+								speed1 = sampTextdrawGetString(2256)
+								renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
 							else
-								renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7)
+								renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+							end
+							if sampTextdrawIsExists(2261) then
+								liters = sampTextdrawGetString(2261)
+								renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
 							end
 						end
-						if sampTextdrawIsExists(2265) then
-							_, colorsport, _, _ = sampTextdrawGetBoxEnabledColorAndSize(2265)
-							if colorsport ~= 671088640 then
-								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 26.5, 0xEEDC5A63, true)
-							else
-								renderFontDrawText(font, 'S', ScreenX * (x / ScreenX) + (ScreenX / 5.915), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7)
-							end
-						end
-						if sampTextdrawIsExists(2256) then
-							speed1 = sampTextdrawGetString(2256)
-							renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
-						else
-							renderFontDrawText(font, math.ceil(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.ceil(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
-						end
-						if sampTextdrawIsExists(2261) then
-							liters = sampTextdrawGetString(2261)
-							renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
-						end
 					end
-				end
-				renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
-				renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3, 0xEEC7C7C7, true)
-				if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
-					local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
-					renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 26.5, 0xEEC7C7C7, true)
-				end
-			else
-				if weapon == 0 then
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+					if mimWanted[0] and wantedlevel > 0 then 
+						renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 43.5 - textposother*2, 0xEEC7C7C7, true)
+						renderFontDrawText(font, "¬ розыске! (".. wantedlevel ..")", ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5 + textposother, 0xEEC7C7C7, true)
+					else 
+						renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5 - textposother, 0xEEC7C7C7, true)
+					end
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3 - textposmain, 0xEEC7C7C7, true)
+					if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
+						local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
+						renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (600 / ScreenX), ScreenY * (y / ScreenY) - 26.5 - textposother, 0xEEC7C7C7, true)
+					end
 				else
-					renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 3, 0xEEC7C7C7, true)
+					if weapon == 0 then
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+					else
+						renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+					end
+					if mimWanted[0] and wantedlevel > 0 then
+						renderFontDrawText(font, "¬ розыске! (".. wantedlevel ..")", ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5 - textposother, 0xEEC7C7C7, true)
+					end
 				end
 			end
 		end
@@ -321,12 +367,16 @@ end
 function cmd_changepos()
 	lua_thread.create(function()
 		showCursor(true, true)
-		while not isKeyDown(0x01) do wait(0) x,y = getCursorPos() end
+		while not wasKeyPressed(vkeys.VK_LBUTTON) do wait(0) x,y = getCursorPos() end
 		showCursor(false, false)
-		settingsIni.coordsmainhud.xcoord = x
-		settingsIni.coordsmainhud.ycoord = y
+		settingsIni.main.xcoord = x
+		settingsIni.main.ycoord = y
 		inicfg.save(mainIni, settings)
 	end)
+end
+
+function cmd_settings()
+	mimShow[0] = not mimShow[0]
 end
 			
 function getAmmoInClip()
@@ -378,12 +428,124 @@ function check_project()
 	end
 end
 
+function apply_custom_style()
+   local style = mimgui.GetStyle()
+   local colors = style.Colors
+   local clr = mimgui.Col
+   local ImVec4 = mimgui.ImVec4
+   style.WindowRounding = 1.5
+   style.WindowTitleAlign = mimgui.ImVec2(0.5, 0.5)
+   style.FrameRounding = 1.0
+   style.ItemSpacing = mimgui.ImVec2(4.0, 4.0)
+   style.ScrollbarSize = 13.0
+   style.ScrollbarRounding = 0
+   style.GrabMinSize = 8.0
+   style.GrabRounding = 1.0
+   style.WindowBorderSize = 0.0
+   style.WindowPadding = mimgui.ImVec2(4.0, 4.0)
+   style.FramePadding = mimgui.ImVec2(2.5, 3.5)
+   style.ButtonTextAlign = mimgui.ImVec2(0.5, 0.35)
+   style.WindowMinSize = mimgui.ImVec2(550, 235)
+ 
+   colors[clr.Text]                   = ImVec4(1.00, 1.00, 1.00, 1.00)
+   colors[clr.TextDisabled]           = ImVec4(0.7, 0.7, 0.7, 1.0)
+   colors[clr.WindowBg]               = ImVec4(0.07, 0.07, 0.07, 1.0)
+   colors[clr.PopupBg]                = ImVec4(0.08, 0.08, 0.08, 0.94)
+   colors[clr.Border]                 = ImVec4(mainc.x, mainc.y, mainc.z, 0.4)
+   colors[clr.BorderShadow]           = ImVec4(0.00, 0.00, 0.00, 0.00)
+   colors[clr.FrameBg]                = ImVec4(mainc.x, mainc.y, mainc.z, 0.7)
+   colors[clr.FrameBgHovered]         = ImVec4(mainc.x, mainc.y, mainc.z, 0.4)
+   colors[clr.FrameBgActive]          = ImVec4(mainc.x, mainc.y, mainc.z, 0.9)
+   colors[clr.TitleBg]                = ImVec4(mainc.x, mainc.y, mainc.z, 1.0)
+   colors[clr.TitleBgActive]          = ImVec4(mainc.x, mainc.y, mainc.z, 1.0)
+   colors[clr.TitleBgCollapsed]       = ImVec4(mainc.x, mainc.y, mainc.z, 0.79)
+   colors[clr.MenuBarBg]              = ImVec4(0.14, 0.14, 0.14, 1.00)
+   colors[clr.ScrollbarBg]            = ImVec4(0.02, 0.02, 0.02, 0.53)
+   colors[clr.ScrollbarGrab]          = ImVec4(mainc.x, mainc.y, mainc.z, 0.8)
+   colors[clr.ScrollbarGrabHovered]   = ImVec4(0.41, 0.41, 0.41, 1.00)
+   colors[clr.ScrollbarGrabActive]    = ImVec4(0.51, 0.51, 0.51, 1.00)
+   colors[clr.CheckMark]              = ImVec4(mainc.x + 0.13, mainc.y + 0.13, mainc.z + 0.13, 1.00)
+   colors[clr.SliderGrab]             = ImVec4(0.28, 0.28, 0.28, 1.00)
+   colors[clr.SliderGrabActive]       = ImVec4(0.35, 0.35, 0.35, 1.00)
+   colors[clr.Button]                 = ImVec4(mainc.x, mainc.y, mainc.z, 0.8)
+   colors[clr.ButtonHovered]          = ImVec4(mainc.x, mainc.y, mainc.z, 0.63)
+   colors[clr.ButtonActive]           = ImVec4(mainc.x, mainc.y, mainc.z, 1.0)
+   colors[clr.Header]                 = ImVec4(mainc.x, mainc.y, mainc.z, 0.6)
+   colors[clr.HeaderHovered]          = ImVec4(mainc.x, mainc.y, mainc.z, 0.43)
+   colors[clr.HeaderActive]           = ImVec4(mainc.x, mainc.y, mainc.z, 0.8)
+   colors[clr.Separator]              = colors[clr.Border]
+   colors[clr.SeparatorHovered]       = ImVec4(0.26, 0.59, 0.98, 0.78)
+   colors[clr.SeparatorActive]        = ImVec4(0.26, 0.59, 0.98, 1.00)
+   colors[clr.ResizeGrip]             = ImVec4(mainc.x, mainc.y, mainc.z, 0.8)
+   colors[clr.ResizeGripHovered]      = ImVec4(mainc.x, mainc.y, mainc.z, 0.63)
+   colors[clr.ResizeGripActive]       = ImVec4(mainc.x, mainc.y, mainc.z, 1.0)
+   colors[clr.PlotLines]              = ImVec4(0.61, 0.61, 0.61, 1.00)
+   colors[clr.PlotLinesHovered]       = ImVec4(1.00, 0.43, 0.35, 1.00)
+   colors[clr.PlotHistogram]          = ImVec4(0.90, 0.70, 0.00, 1.00)
+   colors[clr.PlotHistogramHovered]   = ImVec4(1.00, 0.60, 0.00, 1.00)
+   colors[clr.TextSelectedBg]         = ImVec4(0.26, 0.59, 0.98, 0.35)
+end
+
+-- mimgui.OnInitialize() вызываетс€ всего раз, перед первым показом рендера
+mimgui.OnInitialize(function()
+	apply_custom_style() -- применим кастомный стиль
+end)
+
+mimgui.OnFrame(function () return mimShow[0] end,
+function ()
+    local w, h = getScreenResolution()
+    mimgui.SetNextWindowPos(mimgui.ImVec2(w / 2, h / 2), mimgui.Cond.Always, mimgui.ImVec2(0.5, 0.5))
+    mimgui.SetNextWindowSize(mimgui.ImVec2(550, 235), mimgui.Cond.Always)
+    mimgui.Begin(u8"Ќастройки HUD'a", mimShow, mimgui.WindowFlags.NoCollapse + mimgui.WindowFlags.NoResize + mimgui.WindowFlags.NoMove + mimgui.WindowFlags.NoBringToFrontOnFocus + mimgui.WindowFlags.AlwaysAutoResize)
+	if mimgui.Checkbox(u8"ќтображать HUD (произойдЄт перезагрузка)", mimHud) then 
+		showhud = tostring(mimHud[0])
+		settingsIni.main.hud = showhud
+		inicfg.save(mainIni, settings)
+		thisScript():reload()
+	end
+	mimgui.Checkbox(u8"ќтображать прогресс бары (если настраиваете смещение прогресс баров)", mimChangeProgressBar)
+	if mimgui.Checkbox(u8"ќтображать уровень розыска", mimWanted) then
+		wanted = tostring(mimWanted[0])
+		settingsIni.main.wanted = wanted
+		inicfg.save(mainIni, settings)
+	end
+	mimgui.Separator()
+	if mimgui.SliderInt(u8"–азмер текста HUD'a", mimSizeFont, 4, 25) then
+		fontsize = tostring(mimSizeFont[0])
+		font = nil
+		font = renderCreateFont("Bebas Neue Bold", fontsize, 1)
+		settingsIni.main.sizefont = fontsize
+		inicfg.save(mainIni, settings)
+	end
+	if mimgui.SliderInt(u8"—мещение текста на HUD'e", mimMainTextPos, -8, 8) then
+		textposmain = tostring(mimMainTextPos[0])
+		settingsIni.main.posmaintext = textposmain
+		inicfg.save(mainIni, settings)
+	end
+	if mimgui.SliderInt(u8"—мещение текста выше HUD'a", mimOtherTextPos, -8, 8) then
+		textposother = tostring(mimOtherTextPos[0])
+		settingsIni.main.posothertext = textposother
+		inicfg.save(mainIni, settings)
+	end
+	if mimgui.SliderInt(u8"—мещение прогресс баров", mimProgressPos, -8, 8) then
+		progressbarpos = tostring(mimProgressPos[0])
+		settingsIni.main.posprogressbar = progressbarpos
+		inicfg.save(mainIni, settings)
+	end
+	mimgui.Separator()
+	if mimgui.Button(u8"»зменить позицию HUD'a") then
+		cmd_changepos()
+		ffi.C.SetCursorPos(x, y)
+	end
+    mimgui.End()
+end)
+
 function sampev.onShowTextDraw(id, data)
     if project == 1 then
 		for i = 2255, 2269 do
 			if i == id then
-				data.position.x = 2000
-				data.position.y = 2000
+				data.position.x = 5000
+				data.position.y = 5000
 			end
 		end
 	end
