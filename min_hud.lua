@@ -7,7 +7,7 @@ function _()
 end
 
 script_name('Minimalistic HUD')
-script_version("1.4.2.1")
+script_version("1.4.2.2")
 script_author("alexmarkel0v (Александр Маркелов), Rich.W, Илья Рубинковский")
 
 require 'libstd.deps' {
@@ -42,6 +42,7 @@ local mimSizeFont = new.int(14)
 local mimMainTextPos = new.int(0)
 local mimOtherTextPos = new.int(0)
 local mimProgressPos = new.int(0)
+local mimMoneyPos = new.int(0)
 
 mainIni = inicfg.load(
 {
@@ -53,6 +54,7 @@ mainIni = inicfg.load(
 		posmaintext = mimMainTextPos[0],
 		posothertext = mimOtherTextPos[0],
 		posprogressbar = mimProgressPos[0],
+		posmoney = mimMoneyPos[0],
 		wanted = mimWanted[0],
 		hud = mimHud[0],
 	}
@@ -69,6 +71,7 @@ local fontsize = mainIni.main.sizefont
 local textposmain = mainIni.main.posmaintext
 local textposother = mainIni.main.posothertext
 local progressbarpos = mainIni.main.posprogressbar
+local moneypos = mainIni.main.posmoney
 local showhud = mainIni.main.hud
 local wanted = mainIni.main.wanted
 local font = renderCreateFont("Bebas Neue Bold", fontsize, 1)
@@ -208,6 +211,7 @@ function main()
 	mimOtherTextPos[0] = textposother
 	mimProgressPos[0] = progressbarpos
 	mimWanted[0] = wanted
+	mimMoneyPos[0] = moneypos
 	
 	while not isSampAvailable() do wait(50) end
 	while not sampIsLocalPlayerSpawned() do wait(50) end
@@ -296,7 +300,7 @@ function main()
 					end
 				else
 					if weapon == 0 then
-						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX) - moneypos, ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
 					else
 						renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
 						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 6 - textposmain, 0xEEC7C7C7, true)
@@ -350,7 +354,7 @@ function main()
 					end
 				else
 					if weapon == 0 then
-						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (600 / ScreenX) - moneypos, ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
 					else
 						renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
 						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
@@ -517,19 +521,24 @@ function ()
 		settingsIni.main.sizefont = fontsize
 		inicfg.save(mainIni, settings)
 	end
-	if mimgui.SliderInt(u8"Смещение текста на HUD'e", mimMainTextPos, -8, 8) then
+	if mimgui.SliderInt(u8"Смещение по оси Y текста на HUD'e", mimMainTextPos, -8, 8) then
 		textposmain = tostring(mimMainTextPos[0])
 		settingsIni.main.posmaintext = textposmain
 		inicfg.save(mainIni, settings)
 	end
-	if mimgui.SliderInt(u8"Смещение текста выше HUD'a", mimOtherTextPos, -8, 8) then
+	if mimgui.SliderInt(u8"Смещение по оси Y текста выше HUD'a", mimOtherTextPos, -8, 8) then
 		textposother = tostring(mimOtherTextPos[0])
 		settingsIni.main.posothertext = textposother
 		inicfg.save(mainIni, settings)
 	end
-	if mimgui.SliderInt(u8"Смещение прогресс баров", mimProgressPos, -8, 8) then
+	if mimgui.SliderInt(u8"Смещение по оси Y прогресс баров", mimProgressPos, -8, 8) then
 		progressbarpos = tostring(mimProgressPos[0])
 		settingsIni.main.posprogressbar = progressbarpos
+		inicfg.save(mainIni, settings)
+	end
+	if mimgui.SliderInt(u8"Смещение по оси X денег", mimMoneyPos, -12, 12) then
+		moneypos = tostring(mimMoneyPos[0])
+		settingsIni.main.posmoney = moneypos
 		inicfg.save(mainIni, settings)
 	end
 	mimgui.Separator()
