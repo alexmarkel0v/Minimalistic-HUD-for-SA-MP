@@ -7,7 +7,7 @@ function _()
 end
 
 script_name('Minimalistic HUD')
-script_version("1.4.2.2.1")
+script_version("1.4.2.2.2")
 script_author("alexmarkel0v (Александр Маркелов), Rich.W, Илья Рубинковский")
 
 require 'libstd.deps' {
@@ -35,7 +35,6 @@ local mainc = mimgui.ImVec4(0.0, 0.52, 0.74, 1.0) -- Синий
 
 local mimShow = new.bool()
 local mimChangeProgressBar = new.bool()
-local mimChangeHudPos = new.bool()
 local mimWanted = new.bool()
 local mimHud = new.bool(true)
 local mimSizeFont = new.int(14)
@@ -56,7 +55,7 @@ mainIni = inicfg.load(
 		posprogressbar = mimProgressPos[0],
 		posmoney = mimMoneyPos[0],
 		wanted = mimWanted[0],
-		hud = mimHud[0],
+		hud = mimHud[0]
 	}
 }, "min_hud.ini")
 
@@ -609,9 +608,8 @@ function apply_custom_style()
    colors[clr.TextSelectedBg]         = ImVec4(0.26, 0.59, 0.98, 0.35)
 end
 
--- mimgui.OnInitialize() вызывается всего раз, перед первым показом рендера
 mimgui.OnInitialize(function()
-	apply_custom_style() -- применим кастомный стиль
+	apply_custom_style()
 end)
 
 mimgui.OnFrame(function () return mimShow[0] end,
