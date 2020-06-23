@@ -1,5 +1,5 @@
 Минималистичный HUD для GTA SA. За основу взят developezHUD, который был доработан мной. 
-Последняя версия: 1.3.4.1 (https://github.com/Alexander-Markelov/Minimalistic-HUD-for-GTA-SA/releases/latest)
+Последняя версия: 1.4.2.2.2 (https://github.com/Alexander-Markelov/Minimalistic-HUD-for-GTA-SA/releases/latest)
 . Чтобы скачать, перейдите по ссылке выше, после чего кликните по архиву, который будет ниже надписи Assets.
 
 - Установка: файл Bebas Neue Bold.ttf установить (2 раза кликнуть по нему, согласится на установку шрифта), .lua файл закинуть в папку moonloader, которая в папке с игрой. Папку samp целиком закинуть с заменой в папку moonloader/lib.
