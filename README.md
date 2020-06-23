@@ -2,7 +2,7 @@
 Последняя версия: 1.4.2.2.2 (https://github.com/Alexander-Markelov/Minimalistic-HUD-for-GTA-SA/releases/latest)
 . Чтобы скачать, перейдите по ссылке выше, после чего кликните по архиву, который будет ниже надписи Assets.
 
-- Для установки прочтите readme.txt
+- Для установки прочтите инструкцию.
 
 - Настройки: /hud_settings
 
