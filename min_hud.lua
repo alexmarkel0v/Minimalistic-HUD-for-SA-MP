@@ -7,8 +7,8 @@ function _()
 end
 
 script_name('Minimalistic HUD')
-script_version("1.4.2.2.2")
-script_author("alexmarkel0v (Александр Маркелов), Rich.W, Илья Рубинковский")
+script_version("1.4.2.2.2.1")
+script_author("alexmarkel0v (Александр Маркелов)")
 
 require 'libstd.deps' {
    'fyp:mimgui',
@@ -337,7 +337,7 @@ function main()
 	if showhud then displayHud(false) end
 	
 	print('Загрузка завершена. Настройки: /hud_settings. Пользуйтесь :)')
-	print('Автор: alexmarkel0v (vk.com/alexmarkel0v).')
+	print('Автор: alexmarkel0v (vk.com/alexmarkel0v)')
 	print('Особая благодарность: Rich.W (vk.com/id233900209)')
 	print('И также спасибо за помощь в тесте Илье Рубинковскому (vk.com/id334546143)')
 	
@@ -545,7 +545,7 @@ function separator(text)
 end
 
 function check_project()
-	if sampGetCurrentServerName():lower():match("pears project") or sampGetCurrentServerName():lower():match("• test project •") then project = 1
+	if sampGetCurrentServerName():lower():match("pears project") or sampGetCurrentServerName():lower():match("test project") then project = 1
 	else project = 0
 	end
 end
