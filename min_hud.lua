@@ -435,7 +435,7 @@ function main()
 					renderFontDrawText(font, 'E', ScreenX * (x / ScreenX) + (ScreenX / 4.95), ScreenY * (y / ScreenY) - 26.5 - textposother, (isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) and 0xEEDC5A63 or 0xEEC7C7C7), (isCarEngineOn(storeCarCharIsInNoSave(PLAYER_PED)) and false or true))
 					if project == 0 then
 						renderFontDrawText(font, 'D', ScreenX * (x / ScreenX) + (ScreenX / 5.4), ScreenY * (y / ScreenY) - 26.5 - textposother, (getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) == 2 and 0xEEDC5A63 or 0xEEC7C7C7), (getCarDoorLockStatus(storeCarCharIsInNoSave(PLAYER_PED)) == 2 and false or true))
-						renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
 					else
 						if project == 1 then
 							if sampTextdrawIsExists(2232) then
@@ -448,13 +448,13 @@ function main()
 							end
 							if sampTextdrawIsExists(2224) then
 								speed1 = sampTextdrawGetString(2224)
-								renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+								renderFontDrawText(font, string.match(speed1, "(%d+)")..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, string.match(speed1, "(%d+)")..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
 							else
-								renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+								renderFontDrawText(font, math.floor(speed*3.77)..' KM/H', ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, math.floor(speed*3.77)..' KM/H') - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
 							end
 							if sampTextdrawIsExists(2229) then
 								liters = sampTextdrawGetString(2229)
-								renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+								renderFontDrawText(font, string.match(liters, "(%d+)")..' L', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, string.match(liters, "(%d+)")..' L') * (600 / ScreenX), ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
 							end
 						end
 					end
@@ -464,17 +464,17 @@ function main()
 					else 
 						renderFontDrawText(font, getGxtText(getNameOfVehicleModel(getCarModel(storeCarCharIsInNoSave(PLAYER_PED)))), ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5 + textposother, 0xEEC7C7C7, true)
 					end
-					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 3 - textposmain, 0xEEC7C7C7, true)
+					renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, (ScreenY * (y / ScreenY)) + 5 - textposmain, 0xEEC7C7C7, true)
 					if isCharInModel(PLAYER_PED) ~= 537 or isCharInModel(PLAYER_PED) ~= 538 or isCharInModel(PLAYER_PED) ~= 569 or isCharInModel(PLAYER_PED) ~= 570 or isCharInModel(PLAYER_PED) ~= 590 then
 						local carhp = getCarHealth(storeCarCharIsInNoSave(PLAYER_PED))
 						renderFontDrawText(font, (carhp/10)..'%', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, (carhp/10)..'%') * (700 / ScreenX), ScreenY * (y / ScreenY) - 26.5 - textposother, 0xEEC7C7C7, true)
 					end
 				else
 					if weapon == 0 then
-						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (800 / ScreenX) - moneypos, ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + (ScreenX / 4.5) / 2 - renderGetFontDrawTextLength(font, money..'$') * (800 / ScreenX) - moneypos, ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
 					else
-						renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
-						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 3 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, righttext, ScreenX * (x / ScreenX) - renderGetFontDrawTextLength(font, righttext) - 3 + (ScreenX / 4.5), ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
+						renderFontDrawText(font, separator(money)..'$', ScreenX * (x / ScreenX) + 3, ScreenY * (y / ScreenY) + 5 - textposmain, 0xEEC7C7C7, true)
 					end
 					if mimWanted[0] and wantedlevel > 0 then
 						renderFontDrawText(font, "В розыске! (".. wantedlevel ..")", ScreenX * (x / ScreenX), ScreenY * (y / ScreenY) - 26.5 - textposother, 0xEEC7C7C7, true)
