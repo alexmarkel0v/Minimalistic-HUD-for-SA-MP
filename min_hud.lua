@@ -7,7 +7,7 @@ function _()
 end
 
 script_name('Minimalistic HUD')
-script_version("1.4.2.3")
+script_version("1.4.2.4")
 script_author("alexmarkel0v (Александр Маркелов)")
 
 require 'libstd.deps' {
